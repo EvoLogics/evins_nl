@@ -1,0 +1,5 @@
+<launch>
+    <node name="evins_nl_1" pkg="evins_nl" type="evins_nl" output="screen"> 
+        <rosparam command="load" file="$(find evins_nl)/conf/evins_nl_1.yaml" />
+    </node>
+</launch>

@@ -1,0 +1,11 @@
+string role
+uint32 neighbours
+uint32 count
+uint32 total
+uint32[] path
+float32 duration
+uint16 hash
+uint32 len
+uint32 dst
+uint32 hops
+string state

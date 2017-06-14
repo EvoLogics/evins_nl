@@ -1,0 +1,12 @@
+evins_nl_config:
+    connection_type: 'TCP/IP'  # 'SERIAL' or 'TCP/IP'
+    read_rate: 10  # Hz
+    serial_config:
+        port: '/dev/ttyUSB0'
+        baudrate: 19200
+        parity: 'N'
+        stopbits: 1
+        timeout: 0.1
+    tcp_config:
+        ip: '192.168.6.1'  # Device IP
+        port: 10000        # Port number
