@@ -455,7 +455,22 @@ class parser
         std::ostringstream stream;
         if (msg->command.id == NLCommand::SEND) {
             int len = msg->data.length();
-            stream << "NL,send," << len << "," << int(msg->route.destination) << "," << msg->data << eol_;
+            stream << "NL,send,";
+            switch (msg->datatype) {
+            case NLData::TOLERANT:
+                stream << "tolerant,";
+                break;
+            case NLData::SENSITIVE:
+                stream << "sensitive,";
+                break;
+            case NLData::BROADCAST:
+                stream << "broadcast,";
+                break;
+            case NLData::ALARM:
+                stream << "alarm,";
+                break;
+            }
+            stream << len << "," << int(msg->route.destination) << "," << msg->data << eol_;
         } else {
             ROS_ERROR_STREAM("" << __func__ << ": unsupported command: " << int(msg->command.id));
             return;
@@ -1158,8 +1173,10 @@ class parser
         } else if (parameters == "ok") {
             data_.command.status = NLCommand::OK;
         } else {
-            ROS_ERROR_STREAM("" << ": unsupported parameters: " << parameters);
-            data_.command.status = NLCommand::ERROR;
+            data_.reference = boost::lexical_cast<unsigned int>(parameters);
+            data_.command.status = NLCommand::OK;
+            // ROS_ERROR_STREAM("" << ": unsupported parameters: " << parameters);
+            // data_.command.status = NLCommand::ERROR;
         }
         pub_data_.publish(data_);
     }
@@ -1179,11 +1196,12 @@ class parser
             ROS_ERROR_STREAM("" << ": unsupported report: " << report);
             return;
         }
-        static const boost::regex route_regex("(.*),(.*)");
+        static const boost::regex route_regex("(.*),(.*),(.*)");
         boost::smatch route_matches;
         if (boost::regex_match(parameters, route_matches, route_regex)) {
-            data_report.route.source = boost::lexical_cast<int>(route_matches[1].str());
-            data_report.route.destination = boost::lexical_cast<int>(route_matches[2].str());
+            data_report.reference = boost::lexical_cast<int>(route_matches[1].str());
+            data_report.route.source = boost::lexical_cast<int>(route_matches[2].str());
+            data_report.route.destination = boost::lexical_cast<int>(route_matches[3].str());
         }
         pub_data_report_.publish(data_report);
     }
