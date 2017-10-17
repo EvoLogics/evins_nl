@@ -59,6 +59,7 @@
 
 #include "comm_middlemen.h"
 #include "config.h"
+#include "std_msgs/Bool.h"
 
 using boost::asio::ip::tcp;
 using evins_nl::NLRaw;
@@ -75,6 +76,7 @@ using evins_nl::NLData;
 using evins_nl::NLDataReport;
 using evins_nl::NLDiscovery;
 using evins_nl::NLPolling;
+using std_msgs::Bool;
 
 namespace evins_nl
 {
@@ -95,6 +97,8 @@ class parser
         waitsync_(WAITSYNC_NO),
         eol_("\r\n")
     {
+        pub_connection_ = nh_.advertise<Bool>(config.nodeName() + "/connection", 100);
+        
         pub_raw_ = nh_.advertise<NLRaw>(config.nodeName() + "/raw", 100);
 
         pub_version_ = nh_.advertise<NLVersion>(config.nodeName() + "/version", 100);
@@ -176,11 +180,17 @@ class parser
 
     void connected(void)
     {
+        Bool conn;
+        conn.data = true;
+        pub_connection_.publish(conn);
         ROS_INFO_STREAM("connect");
     }
 
     void disconnected(void)
     {
+        Bool conn;
+        conn.data = false;
+        pub_connection_.publish(conn);
         ROS_INFO_STREAM("disconnect");
         waitsync_ = WAITSYNC_NO;
     }
@@ -560,6 +570,8 @@ class parser
     std::string more_;
     boost::asio::deadline_timer answer_timer_;
 
+    ros::Publisher pub_connection_;
+    
     ros::Publisher pub_raw_;
 
     ros::Publisher pub_version_;
